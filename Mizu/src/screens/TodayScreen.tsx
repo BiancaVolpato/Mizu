@@ -7,6 +7,7 @@ import { Card } from '../components/Card';
 import { CatIllustration } from '../components/CatIllustration';
 import { EmptyState } from '../components/EmptyState';
 import { Input } from '../components/Input';
+import { MizuIcon } from '../components/MizuIcon';
 import { Screen } from '../components/Screen';
 import { WaterQuickButton } from '../components/WaterQuickButton';
 import { useHydration } from '../hooks/HydrationProvider';
@@ -45,16 +46,15 @@ export const TodayScreen = () => {
     <Screen>
       <View style={styles.header}>
         <View><Text style={styles.kicker}>{greeting()}{data.settings.displayName ? `, ${data.settings.displayName}` : ''}</Text><Text style={styles.title}>Seu dia com água</Text></View>
-        <View style={styles.brandBadge}><Text style={styles.brand}>m</Text></View>
+        <View style={styles.brandBadge}><MizuIcon name="droplet" size={21} strokeWidth={1.8} color={colors.waterDark} /></View>
       </View>
 
       <Card style={styles.heroCard}>
-        {percent >= 100 ? <View style={styles.celebration}><Text style={styles.celebrationText}>META ALCANÇADA · ✦</Text></View> : null}
-        <CatIllustration color={data.settings.cat.color} mood={mood} size={180} />
+        <CatIllustration color={data.settings.cat.color} mood={mood} size={204} />
         <Text adjustsFontSizeToFit numberOfLines={1} style={styles.total}>{formatVolume(todayTotal, data.settings.unit)}</Text>
         <Text style={styles.of}>de {formatVolume(goal, data.settings.unit)}</Text>
         <BowlProgress percent={percent} />
-        <Text style={styles.remaining}>{remaining > 0 ? `Faltam ${formatVolume(remaining, data.settings.unit)} para sua meta` : `${formatVolume(todayTotal - goal, data.settings.unit)} além da meta — tudo registrado`}</Text>
+        <View style={styles.remainingPill}><Text style={styles.remaining}>{remaining > 0 ? `Faltam ${formatVolume(remaining, data.settings.unit)} para sua meta` : `${formatVolume(todayTotal - goal, data.settings.unit)} além da meta — tudo registrado`}</Text></View>
         <Animated.Text accessibilityLiveRegion="polite" style={[styles.feedback, { opacity: feedback }]}>Água registrada ✓</Animated.Text>
       </Card>
 
@@ -70,8 +70,8 @@ export const TodayScreen = () => {
           <View key={entry.id} style={[styles.entry, index < todayEntries.length - 1 && styles.entryBorder]}>
             <View><Text style={styles.entryAmount}>{formatVolume(entry.amountMl)}</Text><Text style={styles.entryTime}>{formatTime(entry.createdAt)}</Text></View>
             <View style={styles.actions}>
-              <Pressable accessibilityRole="button" accessibilityLabel={`Editar registro de ${entry.amountMl} mililitros`} onPress={() => openEdit(entry)} style={styles.action}><Text style={styles.actionText}>Editar</Text></Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel={`Excluir registro de ${entry.amountMl} mililitros`} onPress={() => Alert.alert('Excluir registro?', `${formatVolume(entry.amountMl)} às ${formatTime(entry.createdAt)}`, [{ text: 'Cancelar', style: 'cancel' }, { text: 'Excluir', style: 'destructive', onPress: () => deleteEntry(entry.id) }])} style={styles.action}><Text style={styles.deleteText}>Excluir</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Editar registro de ${entry.amountMl} mililitros`} onPress={() => openEdit(entry)} style={styles.iconAction}><MizuIcon name="pencil" size={18} strokeWidth={1.8} color={colors.waterDark} /></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Excluir registro de ${entry.amountMl} mililitros`} onPress={() => Alert.alert('Excluir registro?', `${formatVolume(entry.amountMl)} às ${formatTime(entry.createdAt)}`, [{ text: 'Cancelar', style: 'cancel' }, { text: 'Excluir', style: 'destructive', onPress: () => deleteEntry(entry.id) }])} style={styles.iconAction}><MizuIcon name="trash" size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
             </View>
           </View>
         ))}
@@ -90,13 +90,11 @@ const styles = StyleSheet.create({
   kicker: { ...typography.caption, marginBottom: 2 },
   title: { ...typography.h1 },
   brandBadge: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.waterSoft, alignItems: 'center', justifyContent: 'center' },
-  brand: { ...typography.h2, color: colors.waterDark },
   heroCard: { alignItems: 'center', paddingTop: spacing.lg, paddingBottom: spacing.md, overflow: 'hidden' },
-  celebration: { position: 'absolute', top: 12, right: 12, backgroundColor: colors.beigeSoft, borderRadius: 99, paddingHorizontal: 10, paddingVertical: 5 },
-  celebrationText: { ...typography.caption, fontSize: 10, fontFamily: 'PlusJakartaSans_600SemiBold', color: colors.text },
-  total: { ...typography.display, marginTop: -6 },
-  of: { ...typography.body, color: colors.textMuted, marginBottom: spacing.sm },
-  remaining: { ...typography.caption, textAlign: 'center', marginTop: spacing.xs },
+  total: { ...typography.display, marginTop: -9 },
+  of: { ...typography.body, color: colors.textMuted },
+  remainingPill: { backgroundColor: colors.beigeSoft, borderRadius: 99, paddingHorizontal: spacing.md, paddingVertical: 8, marginTop: -3 },
+  remaining: { ...typography.caption, textAlign: 'center', color: colors.text },
   feedback: { ...typography.caption, color: colors.success, height: 20, marginTop: spacing.xs },
   sectionTitle: { ...typography.h2, marginTop: spacing.lg, marginBottom: spacing.sm },
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -108,7 +106,5 @@ const styles = StyleSheet.create({
   entryAmount: { ...typography.body, fontFamily: 'PlusJakartaSans_600SemiBold' },
   entryTime: { ...typography.caption },
   actions: { flexDirection: 'row', gap: 2 },
-  action: { minHeight: 44, minWidth: 54, alignItems: 'center', justifyContent: 'center' },
-  actionText: { ...typography.caption, color: colors.waterDark },
-  deleteText: { ...typography.caption, color: colors.danger },
+  iconAction: { minHeight: 44, minWidth: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 });

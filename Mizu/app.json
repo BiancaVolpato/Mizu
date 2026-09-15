@@ -2,7 +2,8 @@
   "expo": {
     "name": "Mizu",
     "slug": "mizu-hidratacao",
-    "version": "1.0.0",
+    "version": "1.1.0",
+    "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
@@ -16,10 +17,20 @@
       "package": "com.mizu.hidratacao",
       "permissions": ["POST_NOTIFICATIONS"],
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FAF9F6"
       }
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#FAF9F6"
+        }
+      ],
       [
         "expo-notifications",
         {

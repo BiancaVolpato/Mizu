@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { MizuIcon, MizuIconName } from '../components/MizuIcon';
 import { colors, typography } from '../theme';
 import { CatScreen } from '../screens/CatScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
@@ -10,7 +11,7 @@ import { TodayScreen } from '../screens/TodayScreen';
 
 export type RootTabParamList = { Hoje: undefined; Histórico: undefined; Gatinho: undefined; Perfil: undefined; };
 const Tab = createBottomTabNavigator<RootTabParamList>();
-const icons: Record<keyof RootTabParamList, string> = { Hoje: '◒', Histórico: '▥', Gatinho: '◉', Perfil: '○' };
+const icons: Record<keyof RootTabParamList, MizuIconName> = { Hoje: 'droplets', Histórico: 'calendar', Gatinho: 'cat', Perfil: 'user' };
 
 export const AppNavigator = () => (
   <NavigationContainer>
@@ -21,7 +22,9 @@ export const AppNavigator = () => (
       tabBarInactiveTintColor: colors.textMuted,
       tabBarStyle: styles.tabBar,
       tabBarLabelStyle: styles.label,
-      tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>{icons[route.name]}</Text>,
+      tabBarIcon: ({ color, focused }) => {
+        return <View style={[styles.iconWrap, focused && styles.iconActive]}><MizuIcon name={icons[route.name]} color={color} size={22} strokeWidth={focused ? 2.2 : 1.7} /></View>;
+      },
     })}>
       <Tab.Screen name="Hoje" component={TodayScreen} options={{ tabBarAccessibilityLabel: 'Hoje, tela principal' }} />
       <Tab.Screen name="Histórico" component={HistoryScreen} options={{ tabBarAccessibilityLabel: 'Histórico de hidratação' }} />
@@ -32,7 +35,8 @@ export const AppNavigator = () => (
 );
 
 const styles = StyleSheet.create({
-  tabBar: { height: 78, paddingTop: 8, paddingBottom: 10, backgroundColor: colors.surface, borderTopColor: colors.border },
-  label: { ...typography.caption, fontSize: 11 },
-  icon: { fontSize: 23, lineHeight: 26 },
+  tabBar: { height: 82, paddingTop: 7, paddingBottom: 10, backgroundColor: colors.surface, borderTopColor: colors.border },
+  label: { ...typography.caption, fontSize: 10.5, marginTop: 1 },
+  iconWrap: { width: 42, height: 31, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  iconActive: { backgroundColor: colors.waterSoft },
 });
