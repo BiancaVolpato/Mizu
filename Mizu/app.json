@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Mizu",
+    "slug": "mizu-hidratacao",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mizu.hidratacao",
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "O Mizu usa notificações para lembrar você de beber água dentro da sua rotina."
+      }
+    },
+    "android": {
+      "package": "com.mizu.hidratacao",
+      "permissions": ["POST_NOTIFICATIONS"],
+      "adaptiveIcon": {
+        "backgroundColor": "#FAF9F6"
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#A8DADC",
+          "defaultChannel": "mizu-lembretes"
+        }
+      ]
+    ]
+  }
+}
