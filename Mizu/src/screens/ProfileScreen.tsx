@@ -90,7 +90,7 @@ export const ProfileScreen = () => {
         <View style={styles.divider}/>
         <Pressable accessibilityRole="button" onPress={() => Alert.alert('Limpar todos os dados?', 'Histórico, configurações e personalização serão apagados. Essa ação não pode ser desfeita.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Limpar', style: 'destructive', onPress: () => void clearEverything() }])} style={styles.appRow}><Text style={styles.danger}>Limpar dados</Text><Text style={styles.chevron}>›</Text></Pressable>
         <View style={styles.divider}/>
-        <View style={styles.appRow}><View><Text style={styles.settingTitle}>Sobre o Mizu</Text><Text style={styles.description}>Versão 1.2.1 · dados apenas no aparelho</Text></View></View>
+        <View style={styles.appRow}><View><Text style={styles.settingTitle}>Sobre o Mizu</Text><Text style={styles.description}>Versão 1.3.0 · dados apenas no aparelho</Text></View></View>
       </Card>
     </Screen>
   );
