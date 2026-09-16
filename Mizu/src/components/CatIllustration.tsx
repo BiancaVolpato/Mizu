@@ -33,5 +33,5 @@ export const CatIllustration = ({ color, mood, size = 188 }: Props) => {
   );
 };
 const styles = StyleSheet.create({
-  artwork: { width: '100%', height: '100%', borderRadius: 20 },
+  artwork: { width: '100%', height: '100%' },
 });

@@ -2,11 +2,13 @@
 
 Mizu é um MVP funcional de hidratação para iOS e Android, feito com React Native, Expo e TypeScript. O app calcula uma meta inicial estimada, registra água em um toque, mantém histórico local, agenda lembretes dentro da rotina e usa um gatinho original como companhia visual.
 
-## Atualização visual 1.3.0
+## Atualização visual 1.3.1
 
 - 25 ilustrações aprovadas: cinco poses em branco, preto, cinza, laranja e siamês.
 - Cada gato é uma imagem completa: rosto e pelagem não são mais camadas sobrepostas.
-- As imagens preservam o fundo de papel creme da prancha aprovada.
+- As 25 imagens usam transparência real (PNG RGBA), sem fundo creme.
+- A navbar soma a área segura inferior do aparelho à altura e ao espaçamento dos botões.
+- Atalhos permitem quebra de texto e o cabeçalho se adapta a telas estreitas.
 - Aplicação em Hoje, Gatinho e onboarding; armazenamento e notificações não alterados.
 - Instruções de atualização em [ATUALIZACAO-1.3.0.md](ATUALIZACAO-1.3.0.md).
 
@@ -134,7 +136,7 @@ Android 13 ou superior exige `POST_NOTIFICATIONS`; no iOS a permissão aparece n
 
 ## Testes e verificações já executados
 
-- `npm test`: 12 testes aprovados em 4 arquivos na versão 1.3.0;
+- `npm test`: 18 testes em 5 arquivos, incluindo transparência e área segura inferior;
 - `npm run typecheck`: aprovado sem erros;
 - `npx expo-doctor`: 21/21 verificações aprovadas na versão anterior;
 - bundle Android gerado com sucesso por `expo export`;

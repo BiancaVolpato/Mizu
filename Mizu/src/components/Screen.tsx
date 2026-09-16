@@ -20,7 +20,7 @@ export const Screen = ({ children, contentContainerStyle, ...props }: ScrollView
   }, []);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView style={styles.keyboard} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
           {...props}

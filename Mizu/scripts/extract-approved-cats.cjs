@@ -1,4 +1,4 @@
-// Mechanical extraction only: preserves the approved artwork and its paper backdrop.
+// Mechanical extraction only: preserves the approved artwork and alpha transparency.
 // Development helper: requires sharp; not used by the mobile application.
 const sharp = require('sharp');
 const fs = require('node:fs');

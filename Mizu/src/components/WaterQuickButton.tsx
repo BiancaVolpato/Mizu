@@ -26,7 +26,7 @@ export const WaterQuickButton = ({ amount, label, onPress }: Props) => {
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, minWidth: '46%' },
-  button: { minHeight: sizes.touch + 8, borderRadius: radius.md, backgroundColor: colors.waterSoft, paddingHorizontal: spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
+  button: { minHeight: sizes.touch + 8, borderRadius: radius.md, backgroundColor: colors.waterSoft, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   pressed: { opacity: 0.72 },
-  label: { ...typography.button, color: colors.text },
+  label: { ...typography.button, color: colors.text, flexShrink: 1, textAlign: 'center' },
 });

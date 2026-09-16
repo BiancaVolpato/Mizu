@@ -13,6 +13,7 @@ describe('ilustrações aprovadas', () => {
       const file = `${coat}-${mood}.png`;
       const bytes = readFileSync(resolve(folder, file));
       expect(bytes.subarray(1, 4).toString()).toBe('PNG');
+      expect(bytes[25]).toBe(6); // PNG RGBA: transparency must survive extraction.
       expect(bytes.readUInt32BE(16)).toBeGreaterThan(150);
       expect(bytes.readUInt32BE(20)).toBeGreaterThan(150);
       expect(catalog).toContain(`require('../../assets/cats/approved/${file}')`);

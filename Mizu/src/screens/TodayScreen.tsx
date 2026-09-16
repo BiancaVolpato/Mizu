@@ -45,7 +45,7 @@ export const TodayScreen = () => {
   return (
     <Screen>
       <View style={styles.header}>
-        <View><Text style={styles.kicker}>{greeting()}{data.settings.displayName ? `, ${data.settings.displayName}` : ''}</Text><Text style={styles.title}>Seu dia com água</Text></View>
+        <View style={{ flex: 1, marginRight: spacing.sm }}><Text style={styles.kicker}>{greeting()}{data.settings.displayName ? `, ${data.settings.displayName}` : ''}</Text><Text style={styles.title}>Seu dia com água</Text></View>
         <View style={styles.brandBadge}><MizuIcon name="droplet" size={21} strokeWidth={1.8} color={colors.waterDark} /></View>
       </View>
 
