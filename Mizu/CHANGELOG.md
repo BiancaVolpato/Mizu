@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1 — Correção das ilustrações
+
+- Substituídos os gatos vetoriais simplificados por cinco ilustrações raster originais com textura de tinta e bordas de pincel.
+- Mantidas as cinco pelagens por coloração não destrutiva das ilustrações.
+- Rostos e detalhes de água reposicionados para cada pose.
+- Ícone e splash refeitos com margens compatíveis com as máscaras dos launchers Android.
+
 ## 1.2.0 — Personagem ilustrado e teclado
 
 - Gatinho totalmente redesenhado em uma linguagem original de tinta orgânica, sem construção por formas geométricas.
