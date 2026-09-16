@@ -1,135 +1,191 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
-import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
+import Svg, { G, Path } from 'react-native-svg';
 import { colors as palette } from '../theme';
 import { CatColor, CatMood } from '../types';
 
-type CatPaint = { body: string; accent: string; face: string; outline: string };
+type CatPaint = { ink: string; detail: string; eyes: string; outline: string };
 
 const paints: Record<CatColor, CatPaint> = {
-  white: { body: '#F5F1EB', accent: '#D8C4B6', face: '#242424', outline: '#B9A99D' },
-  black: { body: '#242424', accent: '#3B3A38', face: '#FAF9F6', outline: '#242424' },
-  gray: { body: '#929693', accent: '#6E7470', face: '#FAF9F6', outline: '#6E7470' },
-  orange: { body: '#D99B5E', accent: '#B8753D', face: '#242424', outline: '#B8753D' },
-  siamese: { body: '#E7DACB', accent: '#594940', face: '#FAF9F6', outline: '#B5A18E' },
+  white: { ink: '#F2EDE6', detail: '#D2C1B4', eyes: '#343331', outline: '#A99A8E' },
+  black: { ink: '#20211F', detail: '#343632', eyes: '#FAF7F0', outline: '#20211F' },
+  gray: { ink: '#858B87', detail: '#666D68', eyes: '#FAF7F0', outline: '#6B716D' },
+  orange: { ink: '#D38F51', detail: '#AD6838', eyes: '#282724', outline: '#B7753E' },
+  siamese: { ink: '#DED0BE', detail: '#58463D', eyes: '#FAF7F0', outline: '#A49382' },
 };
 
 const moodLabels: Record<CatMood, string> = {
   sleeping: 'dormindo enrolado',
   stretching: 'se espreguiçando',
-  playing: 'brincando com uma bolinha',
-  happy: 'sentado e feliz',
+  playing: 'brincando com uma gota de água',
+  happy: 'sentado e contente',
   celebrating: 'comemorando com as patas para cima',
 };
 
-interface HeadProps {
-  paint: CatPaint;
-  color: CatColor;
-  transform: string;
-  expression: 'sleep' | 'curious' | 'focused' | 'happy' | 'excited';
-}
+const Ground = ({ wide = false }: { wide?: boolean }) => (
+  <Path
+    d={wide ? 'M31 184c43-7 151-7 198 1-28 9-163 10-198-1z' : 'M55 185c35-7 117-7 151 0-26 9-121 9-151 0z'}
+    fill="#242424"
+    opacity="0.065"
+  />
+);
 
-const Head = ({ paint, color, transform, expression }: HeadProps) => {
-  const closed = expression === 'sleep' || expression === 'happy';
-  return (
-    <G transform={transform}>
-      <Path d="M-34-8L-29-36-8-22C-3-25 7-25 12-22L32-36 34-7C42 2 42 20 35 31 25 45-24 45-35 31-43 19-42 3-34-8z" fill={paint.body} stroke={paint.outline} strokeWidth="2.2" strokeLinejoin="round" />
-      {color === 'siamese' ? <Path d="M-29-9L-27-30-8-18C2-23 13-21 27-8 35 0 35 18 29 27 16 38-18 39-30 27-37 17-37 1-29-9z" fill={paint.accent} /> : null}
-      {color === 'orange' ? <G stroke={paint.accent} strokeWidth="3" strokeLinecap="round"><Path d="M-10-20l-3 9"/><Path d="M0-22v10"/><Path d="M10-20l3 9"/></G> : null}
-      {closed ? (
-        <G stroke={paint.face} strokeWidth="3.4" strokeLinecap="round" fill="none">
-          <Path d={expression === 'happy' ? 'M-23 8q8 8 16 0' : 'M-23 11q8 5 16 0'} />
-          <Path d={expression === 'happy' ? 'M8 8q8 8 16 0' : 'M8 11q8 5 16 0'} />
-        </G>
-      ) : (
-        <G fill={paint.face}>
-          <Ellipse cx="-15" cy="9" rx={expression === 'excited' ? 6.5 : 5.5} ry={expression === 'excited' ? 9 : 8} />
-          <Ellipse cx="16" cy="9" rx={expression === 'excited' ? 6.5 : 5.5} ry={expression === 'excited' ? 9 : 8} />
-          {color !== 'black' && color !== 'siamese' ? <G fill="#FAF9F6"><Circle cx="-13" cy="6" r="1.8"/><Circle cx="18" cy="6" r="1.8"/></G> : null}
-        </G>
-      )}
-      <Path d="M-3 22l4 2 4-2" stroke={paint.face} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      {expression !== 'sleep' ? <Path d={expression === 'excited' ? 'M1 26q0 8 7 3' : 'M1 25q-5 6-10 1M1 25q5 6 10 1'} stroke={paint.face} strokeWidth="2" strokeLinecap="round" fill="none" /> : null}
-    </G>
-  );
+const OpenEyes = ({ paint, left, right, scale = 1 }: { paint: CatPaint; left: [number, number]; right: [number, number]; scale?: number }) => (
+  <G fill="none" stroke={paint.eyes} strokeWidth={5 * scale} strokeLinecap="round">
+    <Path d={`M${left[0] - 7 * scale} ${left[1]}c0-${9 * scale} ${14 * scale}-${9 * scale} ${14 * scale} 0s-${14 * scale} ${9 * scale}-${14 * scale} 0z`} />
+    <Path d={`M${right[0] - 7 * scale} ${right[1]}c0-${9 * scale} ${14 * scale}-${9 * scale} ${14 * scale} 0s-${14 * scale} ${9 * scale}-${14 * scale} 0z`} />
+  </G>
+);
+
+const ClosedEyes = ({ paint, left, right }: { paint: CatPaint; left: [number, number]; right: [number, number] }) => (
+  <G fill="none" stroke={paint.eyes} strokeWidth="5" strokeLinecap="round">
+    <Path d={`M${left[0] - 7} ${left[1]}q7 7 14 0`} />
+    <Path d={`M${right[0] - 7} ${right[1]}q7 7 14 0`} />
+  </G>
+);
+
+const FurMarks = ({ paint, color, mood }: { paint: CatPaint; color: CatColor; mood: CatMood }) => {
+  if (color === 'black' || color === 'white') return null;
+  if (color === 'siamese') {
+    const mask = mood === 'sleeping'
+      ? 'M132 88c8-14 29-17 40-4 9 10 8 30-1 39-12 11-36 8-42-5-4-10-2-21 3-30z'
+      : mood === 'stretching'
+        ? 'M72 126c-8-15-1-34 14-40l22-15 19 18c7 15 0 35-14 42-15 8-33 5-41-5z'
+        : mood === 'playing'
+          ? 'M77 102c-7-16 0-35 14-42l22-16 20 20c7 17-2 38-18 44-15 6-31 3-38-6z'
+          : mood === 'happy'
+            ? 'M99 71c-3-18 7-36 24-42l20-10 17 19c10 15 4 39-11 48-17 10-43 5-50-15z'
+            : 'M101 71c-4-18 6-37 23-44l19-11 19 20c9 16 3 39-12 48-17 10-42 4-49-13z';
+    return <Path d={mask} fill={paint.detail} opacity="0.98" />;
+  }
+
+  const marks = mood === 'sleeping'
+    ? 'M149 76l-3 13M159 77l1 13M169 81l4 11'
+    : mood === 'stretching'
+      ? 'M91 80l2 13M101 78l4 13M112 79l5 12'
+      : mood === 'playing'
+        ? 'M95 53l2 13M106 51l4 13M117 54l5 11'
+        : mood === 'happy'
+          ? 'M119 35l2 14M132 31l4 15M145 35l5 13'
+          : 'M120 33l2 14M133 30l4 15M146 34l5 13';
+  return <Path d={marks} fill="none" stroke={paint.detail} strokeWidth="4" strokeLinecap="round" opacity="0.78" />;
 };
 
 const SleepingCat = ({ paint, color }: { paint: CatPaint; color: CatColor }) => (
   <G>
-    <Ellipse cx="118" cy="166" rx="82" ry="8" fill="#242424" opacity="0.07" />
-    <Path d="M45 127c0-37 32-68 76-68 48 0 79 30 78 67-1 32-33 45-83 45-43 0-71-12-71-44z" fill={paint.body} stroke={paint.outline} strokeWidth="2.2" />
-    <Path d="M174 98c33 11 30 54-2 60-24 5-48-7-59-20" stroke={paint.accent} strokeWidth="15" strokeLinecap="round" fill="none" />
-    <Head paint={paint} color={color} expression="sleep" transform="translate(84 108) rotate(-9) scale(.88)" />
-    <Path d="M48 72q-9-10-18 0M37 61q-7-8-14 0" stroke={palette.waterDark} strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.65" />
+    <Ground />
+    <Path
+      d="M45 142c-4-31 15-65 47-78 22-9 41-6 57 3l18-20 10 29c25 15 38 42 30 66-9 28-46 38-93 37-45-1-66-11-69-37zm120-2c17-4 28-13 28-25 0-10-7-18-16-20 8 18 1 32-12 45z"
+      fill={paint.ink}
+      stroke={paint.outline}
+      strokeWidth="2.6"
+      strokeLinejoin="round"
+    />
+    <FurMarks paint={paint} color={color} mood="sleeping" />
+    <Path d="M62 151c26 18 91 17 119-7-24 5-42 0-57-12-13-10-27-12-40-5-10 5-16 14-22 24z" fill={paint.detail} opacity="0.36" />
+    <ClosedEyes paint={paint} left={[143, 102]} right={[170, 103]} />
+    <Path d="M154 117q5 4 10 0" fill="none" stroke={paint.eyes} strokeWidth="3.2" strokeLinecap="round" />
+    <G fill="none" stroke={palette.waterDark} strokeWidth="3" strokeLinecap="round" opacity="0.68">
+      <Path d="M54 66q8-8 16 0" />
+      <Path d="M42 54q6-6 12 0" />
+    </G>
   </G>
 );
 
 const StretchingCat = ({ paint, color }: { paint: CatPaint; color: CatColor }) => (
   <G>
-    <Ellipse cx="118" cy="169" rx="91" ry="8" fill="#242424" opacity="0.07" />
-    <Path d="M74 86c30-32 86-34 112 1 15 20 4 49-23 48l-91-4c-26-1-23-24 2-45z" fill={paint.body} stroke={paint.outline} strokeWidth="2.2" />
-    <Path d="M177 91c25-13 26-42 8-56-13-9-25 2-18 13" stroke={paint.body} strokeWidth="14" strokeLinecap="round" fill="none" />
-    <Path d="M80 123L48 158M107 128L83 163" stroke={paint.accent} strokeWidth="15" strokeLinecap="round" />
-    <Path d="M164 127l13 35" stroke={paint.accent} strokeWidth="15" strokeLinecap="round" />
-    <Head paint={paint} color={color} expression="curious" transform="translate(62 119) rotate(-18) scale(.82)" />
-    <Path d="M33 161h27M70 165h27M165 165h26" stroke={paint.outline} strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+    <Ground wide />
+    <Path
+      d="M62 142c-14-9-17-24-8-37 8-11 22-16 37-20l17-23 16 16c26-11 63-7 79 16 13 19 8 43-7 53-8 6-15 2-15-7 0-19 7-40 15-55 9-18 21-31 32-27 9 4 8 16 0 21-8 5-14 17-18 30-2 8-2 20 1 33 5 22-9 40-29 39-15 0-24-10-26-25l-2-13c-16 5-35 6-53 2l-27 32c-8 9-24 6-25-4-1-6 4-12 13-21l15-17-24 16c-12 8-24 2-23-8 1-5 6-10 12-14z"
+      fill={paint.ink}
+      stroke={paint.outline}
+      strokeWidth="2.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+    <FurMarks paint={paint} color={color} mood="stretching" />
+    <OpenEyes paint={paint} left={[88, 108]} right={[113, 104]} scale={0.85} />
+    <Path d="M99 121q5 4 10-1" fill="none" stroke={paint.eyes} strokeWidth="3" strokeLinecap="round" />
+    <G fill="none" stroke={palette.beige} strokeWidth="3" strokeLinecap="round">
+      <Path d="M42 105l-10-5M44 116l-13 1" />
+    </G>
   </G>
 );
 
 const PlayingCat = ({ paint, color }: { paint: CatPaint; color: CatColor }) => (
   <G>
-    <Ellipse cx="118" cy="169" rx="94" ry="8" fill="#242424" opacity="0.07" />
-    <Path d="M65 119c8-38 37-61 75-51 31 8 46 34 35 63-10 25-45 31-77 24-27-5-39-15-33-36z" fill={paint.body} stroke={paint.outline} strokeWidth="2.2" />
-    <Path d="M72 132l-34 25M101 145l-21 22M158 133l26 25" stroke={paint.accent} strokeWidth="14" strokeLinecap="round" />
-    <Path d="M167 102c31 0 40-24 30-37-8-10-20-5-18 5" stroke={paint.body} strokeWidth="13" strokeLinecap="round" fill="none" />
-    <Head paint={paint} color={color} expression="focused" transform="translate(95 78) rotate(10) scale(.83)" />
-    <Path d="M140 119q25 5 44 23" stroke={paint.body} strokeWidth="13" strokeLinecap="round" fill="none" />
-    <G>
-      <Circle cx="202" cy="151" r="15" fill={palette.beige} />
-      <Path d="M193 142l18 18M211 142l-18 18" stroke="#FAF9F6" strokeWidth="2.2" />
-      <Path d="M194 133q8-8 16 0" stroke={palette.waterDark} strokeWidth="2" fill="none" />
+    <Ground wide />
+    <Path
+      d="M47 139c-8-19 2-43 24-55l18-29 18 15 18-23 15 29c25 10 43 34 44 61l23-22c8-8 20-8 24-1 4 8-1 16-11 20l-30 13c-5 22-26 34-55 33-29-1-51-13-61-31l-25 12c-11 5-20-1-18-10 1-5 7-9 16-12z"
+      fill={paint.ink}
+      stroke={paint.outline}
+      strokeWidth="2.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+    <FurMarks paint={paint} color={color} mood="playing" />
+    <OpenEyes paint={paint} left={[94, 91]} right={[121, 86]} scale={0.92} />
+    <Path d="M105 108q5 5 11 0" fill="none" stroke={paint.eyes} strokeWidth="3" strokeLinecap="round" />
+    <Path d="M210 81c0-10 10-19 10-19s11 9 11 19c0 7-5 12-11 12s-10-5-10-12z" fill={palette.waterDark} />
+    <G fill="none" stroke={palette.waterDark} strokeWidth="3" strokeLinecap="round">
+      <Path d="M195 74l-9-5M195 84l-11 2" />
     </G>
   </G>
 );
 
 const HappyCat = ({ paint, color }: { paint: CatPaint; color: CatColor }) => (
   <G>
-    <Ellipse cx="118" cy="170" rx="76" ry="8" fill="#242424" opacity="0.07" />
-    <Path d="M76 142c2-47 17-76 43-76s45 31 47 77c1 23-18 29-46 29-29 0-45-8-44-30z" fill={paint.body} stroke={paint.outline} strokeWidth="2.2" />
-    <Path d="M91 113l3 45M147 113l-3 45" stroke={paint.accent} strokeWidth="13" strokeLinecap="round" />
-    <Path d="M160 139c32 17 50-7 42-28-6-16-24-13-24 0 0 8 9 12 15 7" stroke={paint.body} strokeWidth="13" strokeLinecap="round" fill="none" />
-    <Head paint={paint} color={color} expression="happy" transform="translate(120 60) scale(.96)" />
-    <Path d="M82 166h26M132 166h26" stroke={paint.outline} strokeWidth="3" strokeLinecap="round" opacity="0.6" />
-    <Path d="M112 105q8 7 16 0" stroke={paint.accent} strokeWidth="3" strokeLinecap="round" fill="none" />
+    <Ground />
+    <Path
+      d="M70 166c-2-19 10-33 30-39l3-37c1-17 8-30 20-38l-2-28 22 17 21-20 5 30c14 8 21 23 20 43l-2 42c14 7 31 8 42-2 8-8 7-20-1-25-6-4-13-1-13 5 0 5 4 7 8 6-2 12-17 16-27 9-11-8-13-25-4-37 11-15 33-17 47-5 17 15 15 44-3 61-16 15-42 19-64 10-11 15-31 23-55 23-30 0-49-10-51-25z"
+      fill={paint.ink}
+      stroke={paint.outline}
+      strokeWidth="2.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+    <FurMarks paint={paint} color={color} mood="happy" />
+    <Path d="M119 116c-2 22-1 42 2 59M151 115c3 22 3 42 0 60" fill="none" stroke={paint.detail} strokeWidth="4" strokeLinecap="round" opacity="0.68" />
+    <ClosedEyes paint={paint} left={[130, 71]} right={[158, 70]} />
+    <Path d="M140 88q5 6 11 0M145 88q0 8 7 7" fill="none" stroke={paint.eyes} strokeWidth="3" strokeLinecap="round" />
+    <Path d="M85 70c0-7 7-13 7-13s8 6 8 13c0 5-3 8-8 8s-7-3-7-8z" fill={palette.waterDark} opacity="0.7" />
   </G>
 );
 
 const CelebratingCat = ({ paint, color }: { paint: CatPaint; color: CatColor }) => (
   <G>
-    <Ellipse cx="120" cy="174" rx="68" ry="7" fill="#242424" opacity="0.07" />
+    <Ground />
+    <Path
+      d="M91 177c-8-10-4-22 7-30l7-48-29-35c-7-9-5-20 3-24 8-4 16 2 20 12l14 29 8-32-1-27 22 17 21-21 5 29-1 34 16-31c5-10 15-14 22-9 8 6 7 16-1 24l-27 31 10 49c12 7 17 20 10 30-7 10-24 9-34-1-15 8-34 8-49 0-10 10-26 12-33 3z"
+      fill={paint.ink}
+      stroke={paint.outline}
+      strokeWidth="2.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+    <FurMarks paint={paint} color={color} mood="celebrating" />
+    <OpenEyes paint={paint} left={[132, 70]} right={[158, 68]} scale={0.92} />
+    <Path d="M141 88q6 7 13 0M147 89q0 9 8 8" fill="none" stroke={paint.eyes} strokeWidth="3" strokeLinecap="round" />
     <G fill={palette.waterDark}>
-      <Circle cx="31" cy="44" r="4"/><Circle cx="207" cy="49" r="5"/><Circle cx="191" cy="20" r="3"/>
-      <Path d="M47 17l4 12 11-6-6 13" stroke={palette.beige} strokeWidth="4" fill="none" strokeLinecap="round"/>
-      <Path d="M164 13l-3 12-11-4 6 12" stroke={palette.waterDark} strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <Path d="M48 51c0-9 9-17 9-17s10 8 10 17c0 6-4 10-10 10s-9-4-9-10z" />
+      <Path d="M211 45c0-8 8-15 8-15s9 7 9 15c0 5-4 9-9 9s-8-4-8-9z" />
     </G>
-    <Path d="M88 151c2-46 12-76 31-76 22 0 34 31 35 77 1 19-13 24-34 24-22 0-33-7-32-25z" fill={paint.body} stroke={paint.outline} strokeWidth="2.2" />
-    <Path d="M101 149l-12 23M139 149l12 23" stroke={paint.accent} strokeWidth="14" strokeLinecap="round" />
-    <Path d="M99 105L66 66M143 105l34-42" stroke={paint.body} strokeWidth="14" strokeLinecap="round" />
-    <Path d="M66 66l-9-11M66 66l-14-1M177 63l9-12M177 63l14-2" stroke={paint.accent} strokeWidth="6" strokeLinecap="round" />
-    <Path d="M151 134c28 14 48-4 43-24" stroke={paint.body} strokeWidth="13" strokeLinecap="round" fill="none" />
-    <Head paint={paint} color={color} expression="excited" transform="translate(120 58) scale(.94)" />
+    <G fill="none" stroke={palette.beige} strokeWidth="3" strokeLinecap="round">
+      <Path d="M39 77l-11-3M43 87l-11 4M221 73l10-6M225 84l12 1" />
+    </G>
   </G>
 );
 
-interface Props { color: CatColor; mood: CatMood; size?: number; }
+interface Props { color: CatColor; mood: CatMood; size?: number }
 
 export const CatIllustration = ({ color, mood, size = 188 }: Props) => {
   const scale = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     Animated.parallel([
       Animated.sequence([
-        Animated.timing(scale, { toValue: mood === 'celebrating' ? 1.075 : 1.025, duration: 150, useNativeDriver: true }),
+        Animated.timing(scale, { toValue: mood === 'celebrating' ? 1.06 : 1.025, duration: 150, useNativeDriver: true }),
         Animated.spring(scale, { toValue: 1, friction: 5, tension: 90, useNativeDriver: true }),
       ]),
       Animated.sequence([
@@ -142,7 +198,7 @@ export const CatIllustration = ({ color, mood, size = 188 }: Props) => {
   const paint = paints[color];
   return (
     <Animated.View accessibilityRole="image" accessibilityLabel={`Gatinho ${moodLabels[mood]}`} style={{ transform: [{ translateY }, { scale }] }}>
-      <Svg width={size} height={size * 0.8} viewBox="0 0 240 190">
+      <Svg width={size} height={size * 0.81} viewBox="0 0 260 210">
         {mood === 'sleeping' ? <SleepingCat paint={paint} color={color} /> : null}
         {mood === 'stretching' ? <StretchingCat paint={paint} color={color} /> : null}
         {mood === 'playing' ? <PlayingCat paint={paint} color={color} /> : null}

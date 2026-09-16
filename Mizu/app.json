@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mizu",
     "slug": "mizu-hidratacao",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -15,6 +15,7 @@
     },
     "android": {
       "package": "com.mizu.hidratacao",
+      "softwareKeyboardLayoutMode": "resize",
       "permissions": ["POST_NOTIFICATIONS"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

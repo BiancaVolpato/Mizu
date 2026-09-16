@@ -2,12 +2,14 @@
 
 Mizu é um MVP funcional de hidratação para iOS e Android, feito com React Native, Expo e TypeScript. O app calcula uma meta inicial estimada, registra água em um toque, mantém histórico local, agenda lembretes dentro da rotina e usa um gatinho original como companhia visual.
 
-## Atualização visual 1.1
+## Atualização visual 1.2
 
+- personagem totalmente redesenhado como ilustração de tinta orgânica, com silhueta contínua;
 - cinco poses inteiramente diferentes para cada nível de hidratação;
 - nova tigela com preenchimento vertical animado e porcentagem integrada;
 - ícones finos e arredondados na navegação e nas ações principais;
-- ícone e splash próprios do Mizu;
+- ícone e splash atualizados com a nova identidade do personagem;
+- campos e modais ajustados automaticamente para permanecer acima do teclado;
 - hierarquia e espaçamento refinados na tela Hoje.
 
 > A conta `peso × 35 ml` é somente uma estimativa inicial. Ela não é recomendação médica e a meta pode ser alterada a qualquer momento.
@@ -61,11 +63,11 @@ npx expo-doctor       # confere compatibilidade do projeto
 1. Apague os dados do app e confirme que o onboarding aparece.
 2. Informe `65 kg`, rotina `07:30–23:30` e confirme a meta de `2.275 ml`.
 3. Na tela Hoje, toque em `+ 200 ml`, `+ 350 ml` e `+ 500 ml`; cada atalho deve registrar com um único toque.
-4. Use “Outra quantidade”, edite um registro e exclua outro.
+4. Use “Outra quantidade”, confirme que o campo e o botão permanecem visíveis acima do teclado, edite um registro e exclua outro.
 5. Feche totalmente o app e abra novamente; os registros devem continuar presentes.
 6. Altere a meta no Perfil e confirme que o progresso do dia usa a nova meta.
 7. Consulte Hoje/Semana/Mês no Histórico e abra dias diferentes pelas barras.
-8. Personalize nome e pelagem do gato.
+8. Personalize nome e pelagem do gato; confirme as cinco ilustrações mudando o progresso.
 9. Ative lembretes, escolha a frequência e verifique a permissão do sistema.
 10. Some água até 100% e confirme a comemoração; adicione mais água e confirme que o valor passa de 100% sem bloqueio.
 11. Para simular outro dia, altere temporariamente a data do aparelho, reabra o app, crie um registro e depois restaure a data.
@@ -115,11 +117,12 @@ Android 13 ou superior exige `POST_NOTIFICATIONS`; no iOS a permissão aparece n
 - editar/excluir registros do dia;
 - persistência local e virada segura de data;
 - histórico Hoje/Semana/Mês, média, gráfico e detalhes diários;
-- cinco estados positivos do gato entre 0% e 100%+;
+- cinco ilustrações orgânicas e positivas do gato entre 0% e 100%+;
 - cinco pelagens e nome personalizável;
 - estrutura pronta para coleiras, chapéus, tigelas e novos gatos;
 - lembretes locais com frequências predefinidas e personalizada;
 - feedback sutil, comemoração de meta e acessibilidade básica.
+- rolagem automática até inputs em foco e bottom sheets responsivos ao teclado.
 
 ## Testes e verificações já executados
 
