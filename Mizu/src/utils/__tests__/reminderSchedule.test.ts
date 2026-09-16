@@ -12,5 +12,9 @@ describe('agenda de lembretes', () => {
 
   it('recusa frequência inválida', () => {
     expect(buildReminderTimes('07:00', '23:00', 0)).toEqual([]);
+    expect(buildReminderTimes('07:00', '23:00', NaN)).toEqual([]);
+    expect(buildReminderTimes('07:00', '23:00', 0.5)).toEqual([]);
+    expect(buildReminderTimes('25:00', '23:00', 30)).toEqual([]);
+    expect(buildReminderTimes('07:00', '07:00', 30)).toEqual([]);
   });
 });

@@ -2,7 +2,16 @@
 
 Mizu é um MVP funcional de hidratação para iOS e Android, feito com React Native, Expo e TypeScript. O app calcula uma meta inicial estimada, registra água em um toque, mantém histórico local, agenda lembretes dentro da rotina e usa um gatinho original como companhia visual.
 
-## Atualização visual 1.3.1
+## Atualização 1.3.2
+
+- Nova prancha transparente enviada pela usuária, recortada em 25 PNGs completos.
+- Agenda nativa diária estável: voltar ao app ou registrar água não cancela a agenda.
+- Permissão solicitada depois da criação do canal Android, com tratamento de erros.
+- Perfil inclui teste de notificação em 15 segundos e acesso aos ajustes.
+- Operações de agendamento serializadas, migração dos lembretes antigos sem duplicação.
+- Veja ATUALIZACAO-1.3.2.md para testar a entrega em segundo plano.
+
+### Atualização visual 1.3.1
 
 - 25 ilustrações aprovadas: cinco poses em branco, preto, cinza, laranja e siamês.
 - Cada gato é uma imagem completa: rosto e pelagem não são mais camadas sobrepostas.
@@ -136,7 +145,7 @@ Android 13 ou superior exige `POST_NOTIFICATIONS`; no iOS a permissão aparece n
 
 ## Testes e verificações já executados
 
-- `npm test`: 18 testes em 5 arquivos, incluindo transparência e área segura inferior;
+- `npm test`: 24 testes em 6 arquivos, incluindo agenda nativa simulada, transparência e área segura;
 - `npm run typecheck`: aprovado sem erros;
 - `npx expo-doctor`: 21/21 verificações aprovadas na versão anterior;
 - bundle Android gerado com sucesso por `expo export`;
@@ -147,7 +156,7 @@ Os testes cobrem cálculo da meta, soma por dia, progresso acima de 100%, limite
 ## Limitações conhecidas
 
 - Sem backend ou conta: remover o app ou limpar seus dados apaga o histórico.
-- O texto “quanto falta” das notificações representa o último estado conhecido quando o app estava ativo. Sistemas móveis não permitem recalcular JavaScript arbitrariamente em cada notificação com o app totalmente encerrado; ao reabrir ou registrar água, a agenda é atualizada.
+- Notificações recorrentes usam mensagens genéricas variadas. O valor restante aparece no app; não é incluído nos lembretes recorrentes para evitar repetir o saldo de um dia anterior.
 - Entrega e horário exatos de notificações dependem das políticas de economia de bateria do sistema.
 - O seletor de horário usa entrada `HH:mm`, evitando uma dependência nativa adicional no MVP.
 - O gráfico mensal resume 30 dias corridos; ainda não há calendário anual.

@@ -46,7 +46,9 @@ const reducer = (state: AppData, action: Action): AppData => {
     case 'add': return { ...state, entries: [action.payload, ...state.entries] };
     case 'edit': return { ...state, entries: state.entries.map((entry) => entry.id === action.payload.id ? { ...entry, amountMl: action.payload.amountMl } : entry) };
     case 'delete': return { ...state, entries: state.entries.filter((entry) => entry.id !== action.payload) };
-    case 'settings': return { ...state, settings: { ...state.settings, ...action.payload } };
+    case 'settings': return { ...state, settings: { ...state.settings, ...action.payload,
+      reminders: action.payload.routine ? { ...state.settings.reminders,
+        startTime: action.payload.routine.wakeTime, endTime: action.payload.routine.sleepTime } : state.settings.reminders } };
     case 'cat': return { ...state, settings: { ...state.settings, cat: { ...state.settings.cat, ...action.payload } } };
     case 'reminders': return { ...state, settings: { ...state.settings, reminders: action.payload } };
     case 'goal': {
@@ -62,6 +64,7 @@ const reducer = (state: AppData, action: Action): AppData => {
 interface HydrationContextValue {
   data: AppData;
   ready: boolean;
+  reminderError: string | null;
   todayTotal: number;
   addWater: (amountMl: number) => void;
   editEntry: (id: string, amountMl: number) => void;
@@ -80,6 +83,14 @@ const HydrationContext = createContext<HydrationContextValue | null>(null);
 export const HydrationProvider = ({ children }: React.PropsWithChildren) => {
   const [data, dispatch] = useReducer(reducer, defaultData);
   const [ready, setReady] = useState(false);
+  const [reminderError, setReminderError] = useState<string | null>(null);
+
+  const reconcileReminders = useCallback(() => {
+    if (!ready) return;
+    void configureReminders(data.settings.reminders).then(allowed => {
+      setReminderError(allowed ? null : 'Permita as notificações do Mizu nos ajustes do aparelho.');
+    }).catch(error => setReminderError(error instanceof Error ? error.message : 'Não foi possível agendar os lembretes. Tente novamente.'));
+  }, [ready, data.settings.reminders]);
 
   useEffect(() => {
     loadAppData().then((stored) => { dispatch({ type: 'hydrate', payload: stored }); setReady(true); });
@@ -93,14 +104,11 @@ export const HydrationProvider = ({ children }: React.PropsWithChildren) => {
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
         dispatch({ type: 'ensure-day', payload: dateKey() });
-        if (data.settings.reminders.enabled) {
-          const remaining = Math.max(0, data.settings.dailyGoalMl - totalForDate(data.entries, dateKey()));
-          void configureReminders(data.settings.reminders, remaining);
-        }
+        reconcileReminders();
       }
     });
     return () => subscription.remove();
-  }, [data.entries, data.settings.dailyGoalMl, data.settings.reminders]);
+  }, [reconcileReminders]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -115,11 +123,8 @@ export const HydrationProvider = ({ children }: React.PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
-    if (ready && data.settings.reminders.enabled) {
-      const remaining = Math.max(0, data.settings.dailyGoalMl - totalForDate(data.entries, dateKey()));
-      void configureReminders(data.settings.reminders, remaining);
-    }
-  }, [data.entries, data.settings.dailyGoalMl, data.settings.reminders, ready]);
+    reconcileReminders();
+  }, [reconcileReminders]);
 
   const todayTotal = useMemo(() => totalForDate(data.entries, dateKey()), [data.entries]);
   const addWater = useCallback((amountMl: number) => {
@@ -131,6 +136,7 @@ export const HydrationProvider = ({ children }: React.PropsWithChildren) => {
   const value = useMemo<HydrationContextValue>(() => ({
     data,
     ready,
+    reminderError,
     todayTotal,
     addWater,
     editEntry: (id, amountMl) => dispatch({ type: 'edit', payload: { id, amountMl: Math.max(1, Math.round(amountMl)) } }),
@@ -140,13 +146,19 @@ export const HydrationProvider = ({ children }: React.PropsWithChildren) => {
     updateGoal: (goalMl) => dispatch({ type: 'goal', payload: goalMl }),
     updateCat: (cat) => dispatch({ type: 'cat', payload: cat }),
     updateReminders: async (settings) => {
-      const allowed = await configureReminders(settings, Math.max(0, data.settings.dailyGoalMl - todayTotal));
-      dispatch({ type: 'reminders', payload: { ...settings, enabled: allowed && settings.enabled } });
-      return allowed;
+      try {
+        const allowed = await configureReminders(settings, true);
+        setReminderError(allowed ? null : 'Permita as notificações do Mizu nos ajustes do aparelho.');
+        dispatch({ type: 'reminders', payload: { ...settings, enabled: allowed && settings.enabled } });
+        return allowed;
+      } catch (error) {
+        setReminderError(error instanceof Error ? error.message : 'Não foi possível agendar os lembretes. Tente novamente.');
+        return false;
+      }
     },
     resetOnboarding: () => dispatch({ type: 'reset-onboarding' }),
     clearEverything: async () => { await clearAppData(); dispatch({ type: 'clear' }); await configureReminders({ ...defaultData.settings.reminders, enabled: false }); },
-  }), [addWater, data, ready, todayTotal]);
+  }), [addWater, data, ready, todayTotal, reminderError]);
 
   return <HydrationContext.Provider value={value}>{children}</HydrationContext.Provider>;
 };

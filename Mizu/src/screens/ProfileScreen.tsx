@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { scheduleTestReminder } from '../notifications/reminders';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
@@ -13,7 +14,7 @@ import { isValidTime } from '../utils/date';
 const frequencyOptions = [30, 60, 90, 120];
 
 export const ProfileScreen = () => {
-  const { data, updateSettings, updateGoal, updateReminders, resetOnboarding, clearEverything } = useHydration();
+  const { data, reminderError, updateSettings, updateGoal, updateReminders, resetOnboarding, clearEverything } = useHydration();
   const [displayName, setDisplayName] = useState(data.settings.displayName);
   const [weight, setWeight] = useState(String(data.settings.weightKg));
   const [goal, setGoal] = useState(String(data.settings.dailyGoalMl));
@@ -46,7 +47,7 @@ export const ProfileScreen = () => {
     setSavingReminder(true);
     const allowed = await updateReminders({ ...data.settings.reminders, enabled, startTime: wake, endTime: sleep, frequencyMinutes: frequency });
     setSavingReminder(false);
-    if (enabled && !allowed) Alert.alert('Notificações desativadas', 'Permita notificações nos ajustes do aparelho para receber os lembretes do Mizu.');
+    if (enabled && !allowed) Alert.alert('Lembretes não ativados', 'Confira a mensagem na seção Lembretes e as permissões do aparelho.');
   };
   const chooseFrequency = (value: number) => {
     setFrequency(value); setCustomFrequency(String(value));
@@ -81,7 +82,19 @@ export const ProfileScreen = () => {
         <Text style={styles.miniLabel}>Frequência</Text>
         <View style={styles.chips}>{frequencyOptions.map((value) => <Pressable key={value} onPress={() => chooseFrequency(value)} accessibilityRole="radio" accessibilityState={{ checked: frequency === value }} style={[styles.chip, frequency === value && styles.chipActive]}><Text style={styles.chipText}>{value === 30 ? '30 min' : value === 60 ? '1 hora' : value === 90 ? '1h30' : '2 horas'}</Text></Pressable>)}</View>
         <View style={styles.customRow}><View style={styles.flex}><Input label="Personalizado" value={customFrequency} onChangeText={setCustomFrequency} keyboardType="number-pad" suffix="min" /></View><Button label="Aplicar" variant="ghost" onPress={() => chooseFrequency(Math.max(15, Math.min(720, Number(customFrequency) || 60)))} /></View>
-        <Text style={styles.disclaimer}>Os lembretes são reagendados quando o app está ativo para considerar quanto falta. Consulte as limitações no README.</Text>
+        <Text style={styles.disclaimer}>Os lembretes diários ficam agendados no celular e continuam com o Mizu em segundo plano. Não é necessário manter a tela aberta.</Text>
+        {reminderError ? <Text accessibilityLiveRegion="polite" style={styles.danger}>{reminderError}</Text> : null}
+        <Button label="Testar lembrete em 15 segundos" variant="secondary" onPress={async () => {
+          try {
+            const allowed = await scheduleTestReminder();
+            Alert.alert(allowed ? 'Teste agendado' : 'Permissão necessária', allowed
+              ? 'Vá para a tela inicial ou bloqueie o celular e aguarde 15 segundos. Este teste pode ocorrer fora da rotina.'
+              : 'Permita as notificações nos ajustes do aparelho.');
+          } catch { Alert.alert('Teste não agendado', 'Não foi possível agendar. Confira as permissões e tente novamente.'); }
+        }} />
+        <Button label="Abrir ajustes do aparelho" variant="ghost" onPress={() => {
+          void Linking.openSettings().catch(() => Alert.alert('Ajustes', 'Abra as configurações do celular e procure Mizu → Notificações.'));
+        }} />
       </Card>
 
       <Text style={styles.section}>Aplicativo</Text>
@@ -90,7 +103,7 @@ export const ProfileScreen = () => {
         <View style={styles.divider}/>
         <Pressable accessibilityRole="button" onPress={() => Alert.alert('Limpar todos os dados?', 'Histórico, configurações e personalização serão apagados. Essa ação não pode ser desfeita.', [{ text: 'Cancelar', style: 'cancel' }, { text: 'Limpar', style: 'destructive', onPress: () => void clearEverything() }])} style={styles.appRow}><Text style={styles.danger}>Limpar dados</Text><Text style={styles.chevron}>›</Text></Pressable>
         <View style={styles.divider}/>
-        <View style={styles.appRow}><View><Text style={styles.settingTitle}>Sobre o Mizu</Text><Text style={styles.description}>Versão 1.3.1 · dados apenas no aparelho</Text></View></View>
+        <View style={styles.appRow}><View><Text style={styles.settingTitle}>Sobre o Mizu</Text><Text style={styles.description}>Versão 1.3.2 · dados apenas no aparelho</Text></View></View>
       </Card>
     </Screen>
   );
